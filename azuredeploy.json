@@ -4,14 +4,14 @@
     "parameters": {
       "virtualMachineName": {
         "type": "String",
-        "defaultValue": "myVM",
+        "defaultValue": "myLegacyVM",
         "metadata": {
           "description": "The name of the VM"
         }
       },
       "virtualMachineSize": {
         "type": "String",
-        "defaultValue": "Standard_DS13_v2",
+        "defaultValue": "Standard_DS3_v2",
         "allowedValues": [
           "Standard_DS13_v2",
           "Standard_DS3_v2"
@@ -22,6 +22,7 @@
       },
       "existingVirtualNetworkName": {
         "type": "String",
+        "defaultValue": "myLegacyVirtualNetwork",
         "metadata": {
           "description": "Specify the name of an existing VNet in the same resource group"
         }
@@ -35,6 +36,7 @@
       },
       "existingSubnetName": {
         "type": "String",
+        "defaultValue": "myLegacyVirtualSubnet",
         "metadata": {
           "description": "Specify the name of the Subnet Name"
         }
