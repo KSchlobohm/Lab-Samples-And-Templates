@@ -308,6 +308,37 @@
             }
           }
         }
+      },
+      {
+        "type": "extensions",
+        "apiVersion": "2019-03-01",
+        "name": "CreateADForest",
+        "location": "[resourcegroup().location]",
+        "dependsOn": [
+          "[variables('vmConfig').vmName]"
+        ],
+        "properties": {
+          "publisher": "Microsoft.Powershell",
+          "type": "DSC",
+          "typeHandlerVersion": "2.19",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "ModulesUrl": "https://github.com/Azure/azure-quickstart-templates/blob/master/active-directory-new-domain/DSC/CreateADPDC.zip",
+            "ConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
+            "Properties": {
+              "DomainName": "[parameters('domainName')]",
+              "AdminCreds": {
+                "UserName": "[parameters('adminUsername')]",
+                "Password": "PrivateSettingsRef:AdminPassword"
+              }
+            }
+          },
+          "protectedSettings": {
+            "Items": {
+              "AdminPassword": "[parameters('adminPassword')]"
+            }
+          }
+        }
       }
     ],
     "outputs": {
