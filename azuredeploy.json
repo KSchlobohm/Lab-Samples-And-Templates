@@ -297,7 +297,7 @@
               "ModulesUrl": "https://github.com/Azure/azure-quickstart-templates/blob/master/active-directory-new-domain/DSC/CreateADPDC.zip",
               "ConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
               "Properties": {
-                "DomainName": "[parameters('domainName')]",
+                "DomainName": "fabrikam.local",
                 "AdminCreds": {
                   "UserName": "[parameters('adminUsername')]",
                   "Password": "PrivateSettingsRef:AdminPassword"
