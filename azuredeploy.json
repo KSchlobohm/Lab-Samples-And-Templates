@@ -294,7 +294,7 @@
             "typeHandlerVersion": "2.19",
             "autoUpgradeMinorVersion": true,
             "settings": {
-              "ModulesUrl": "https://github.com/Azure/azure-quickstart-templates/blob/master/active-directory-new-domain/DSC/CreateADPDC.zip",
+              "ModulesUrl": "https://github.com/Azure/azure-quickstart-templates/blob/master/active-directory-new-domain/DSC/CreateADPDC.zip?raw=true",
               "ConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
               "Properties": {
                 "DomainName": "fabrikam.local",
