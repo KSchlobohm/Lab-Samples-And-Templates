@@ -1,37 +1,7 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "skuName": {
-      "type": "string",
-      "defaultValue": "F1",
-      "allowedValues": [
-        "F1",
-        "D1",
-        "B1",
-        "B2",
-        "B3",
-        "S1",
-        "S2",
-        "S3",
-        "P1",
-        "P2",
-        "P3",
-        "P4"
-      ],
-      "metadata": {
-        "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
-      }
-    },
-    "skuCapacity": {
-      "type": "int",
-      "defaultValue": 1,
-      "minValue": 1,
-      "maxValue": 3,
-      "metadata": {
-        "description": "Describes plan's instance count"
-      }
-    },
     "sqlAdministratorLogin": {
       "type": "string",
       "metadata": {
@@ -53,10 +23,13 @@
     }
   },
   "variables": {
+    "skuName": "F1",
     "hostingPlanName": "[concat('hostingplan', uniqueString(resourceGroup().id))]",
-    "webSiteName": "[concat('webSite', uniqueString(resourceGroup().id))]",
+    "todoWebName": "[concat('todoweb', uniqueString(resourceGroup().id))]",
+    "todoApiName": "[concat('todoapi', uniqueString(resourceGroup().id))]",
     "sqlserverName": "[concat('sqlserver', uniqueString(resourceGroup().id))]",
-    "databaseName": "sampledb"
+    "databaseName": "sampledb",
+    "skuCapacity": 1
   },
   "resources": [
     {
@@ -66,7 +39,7 @@
       "tags": {
         "displayName": "SqlServer"
       },
-      "apiVersion": "2018-06-01-preview",
+      "apiVersion": "2019-06-01-preview",
       "properties": {
         "administratorLogin": "[parameters('sqlAdministratorLogin')]",
         "administratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]",
@@ -115,8 +88,8 @@
         "displayName": "HostingPlan"
       },
       "sku": {
-        "name": "[parameters('skuName')]",
-        "capacity": "[parameters('skuCapacity')]"
+        "name": "[variables('skuName')]",
+        "capacity": "[variables('skuCapacity')]"
       },
       "properties": {
         "name": "[variables('hostingPlanName')]"
@@ -124,7 +97,7 @@
     },
     {
       "apiVersion": "2018-02-01",
-      "name": "[variables('webSiteName')]",
+      "name": "[variables('todoWebName')]",
       "type": "Microsoft.Web/sites",
       "location": "[parameters('location')]",
       "dependsOn": [
@@ -132,10 +105,10 @@
       ],
       "tags": {
         "[concat('hidden-related:', resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName')))]": "empty",
-        "displayName": "Website"
+        "displayName": "Todo.Web"
       },
       "properties": {
-        "name": "[variables('webSiteName')]",
+        "name": "[variables('todoWebName')]",
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
       },
       "resources": [
@@ -144,7 +117,7 @@
           "type": "config",
           "name": "connectionstrings",
           "dependsOn": [
-            "[variables('webSiteName')]"
+            "[variables('todoWebName')]"
           ],
           "properties": {
             "DefaultConnection": {
@@ -156,20 +129,37 @@
       ]
     },
     {
-      "apiVersion": "2018-05-01-preview",
-      "name": "[concat('AppInsights', variables('webSiteName'))]",
-      "type": "Microsoft.Insights/components",
+      "apiVersion": "2018-02-01",
+      "name": "[variables('todoApiName')]",
+      "type": "Microsoft.Web/sites",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[variables('webSiteName')]"
+        "[variables('hostingPlanName')]"
       ],
       "tags": {
-        "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('webSiteName')))]": "Resource",
-        "displayName": "AppInsightsComponent"
+        "[concat('hidden-related:', resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName')))]": "empty",
+        "displayName": "Todo.API"
       },
       "properties": {
-        "ApplicationId": "[variables('webSiteName')]"
-      }
+        "name": "[variables('todoApiName')]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      },
+      "resources": [
+        {
+          "apiVersion": "2018-02-01",
+          "type": "config",
+          "name": "connectionstrings",
+          "dependsOn": [
+            "[variables('todoApiName')]"
+          ],
+          "properties": {
+            "DefaultConnection": {
+              "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('databaseName'), ';User Id=', parameters('sqlAdministratorLogin'), '@', reference(concat('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ';Password=', parameters('sqlAdministratorLoginPassword'), ';')]",
+              "type": "SQLAzure"
+            }
+          }
+        }
+      ]
     }
   ]
 }
